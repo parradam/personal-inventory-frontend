@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useNavigate } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -13,17 +14,25 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { loginService } from '../services/loginService';
+import { AxiosError } from 'axios';
+
+type FormErrorResponse = Record<string, string[]> | object;
+
+type FieldNames = Record<string, boolean>;
 
 const formSchema = z.object({
-  username: z.string().min(2, {
+  username: z.string().min(6, {
     message: 'Username must be at least 6 characters.',
   }),
-  password: z.string().min(2, {
+  password: z.string().min(6, {
     message: 'Password must be at least 6 characters.',
   }),
 });
 
 const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,13 +44,43 @@ const LoginForm: React.FC = () => {
   const onSubmit: SubmitHandler<{
     username: string;
     password: string;
-  }> = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  }> = async (values: z.infer<typeof formSchema>) => {
+    try {
+      await loginService(values);
+      await navigate({ to: '/' });
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      const errorData: FormErrorResponse = axiosError.response?.data || {};
+      console.error(errorData);
+
+      const fieldNames: FieldNames = {
+        username: true,
+        password: true,
+      };
+
+      Object.entries(errorData).forEach(([errorFieldName, errorMessages]) => {
+        if (Array.isArray(errorMessages)) {
+          const errorName = fieldNames[errorFieldName]
+            ? errorFieldName
+            : 'root';
+          errorMessages.forEach((errorMessage: string) => {
+            form.setError(errorName as 'username' | 'password' | 'root', {
+              type: 'manual',
+              message: errorMessage,
+            });
+          });
+        }
+      });
+    }
   };
 
   return (
     <div>
       <Form {...form}>
+        {
+          // Suppress TS error due to the way react-hook-form handles async code itself
+        }
+        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
@@ -75,6 +114,7 @@ const LoginForm: React.FC = () => {
               </FormItem>
             )}
           />
+          <FormMessage>{form.formState.errors.root?.message}</FormMessage>
           <Button type="submit" className="w-full">
             Log in
           </Button>
