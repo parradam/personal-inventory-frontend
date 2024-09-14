@@ -15,9 +15,13 @@ export const loginService = async ({
   username,
   password,
 }: LoginParams): Promise<AuthTokenResponseData> => {
-  const response = await axios.post<AuthTokenResponseData>(`${baseUrl}/token`, {
-    username,
-    password,
-  });
+  const response = await axios.post<AuthTokenResponseData>(
+    `${baseUrl}/login`,
+    {
+      username,
+      password,
+    },
+    { withCredentials: true },
+  );
   return response.data;
 };
