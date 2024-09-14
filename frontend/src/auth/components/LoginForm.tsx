@@ -47,7 +47,7 @@ const LoginForm: React.FC = () => {
   }> = async (values: z.infer<typeof formSchema>) => {
     try {
       await loginService(values);
-      await navigate({ to: '/' });
+      await navigate({ to: '/items' });
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorData: FormErrorResponse = axiosError.response?.data || {};
