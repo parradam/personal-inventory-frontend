@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getItemList, ItemListResponseData } from '../services/itemService';
+import {
+  getItemList,
+  removeItem,
+  ItemListResponseData,
+} from '../services/itemService';
 
 import {
   Table,
@@ -11,6 +15,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { Trash2 } from 'lucide-react';
+
 const ItemListView: React.FC = () => {
   const [itemList, setItemList] = useState<ItemListResponseData[]>([]);
 
@@ -20,12 +26,32 @@ const ItemListView: React.FC = () => {
         const retrievedItemList = await getItemList();
         setItemList(retrievedItemList);
       } catch (error) {
-        console.log('Error fetching item list', error);
+        console.error('Error fetching item list', error);
       }
     };
 
     void fetchItem();
   }, []);
+
+  const removeItemFromList = async (itemId: number) => {
+    try {
+      // Remove item from server
+      await removeItem(itemId);
+      // Reflect change in local state
+      const updatedItemList: ItemListResponseData[] = itemList.reduce<
+        ItemListResponseData[]
+      >((listOfItems, item) => {
+        if (item.id === itemId) {
+          return listOfItems;
+        } else {
+          return [...listOfItems, item];
+        }
+      }, []);
+      setItemList(updatedItemList);
+    } catch (error) {
+      console.error('Error removing item from list', error);
+    }
+  };
 
   return (
     <Table>
@@ -37,6 +63,7 @@ const ItemListView: React.FC = () => {
           <TableHead>Owner</TableHead>
           <TableHead>Used from</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -48,8 +75,15 @@ const ItemListView: React.FC = () => {
               <TableCell>{item.barcode}</TableCell>
               <TableCell>{item.owner}</TableCell>
               <TableCell>{usedFromDate.toLocaleDateString()}</TableCell>
-              <TableCell className={item.used_to ? 'text-destructive' : ''}>
-                {item.used_to && 'Removed'}
+              <TableCell>{item.used_to && 'Obsolete'}</TableCell>
+              <TableCell>
+                <span
+                  onClick={() => {
+                    void removeItemFromList(item.id);
+                  }}
+                >
+                  <Trash2 size={16} className="cursor-pointer" />
+                </span>
               </TableCell>
             </TableRow>
           );
