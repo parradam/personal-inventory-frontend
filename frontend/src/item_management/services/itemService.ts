@@ -18,3 +18,9 @@ export const getItemList = async (): Promise<ItemListResponseData[]> => {
   });
   return response.data;
 };
+
+export const removeItem = async (itemId: number): Promise<void> => {
+  await axios.delete(`${baseUrl}/items/${String(itemId)}`, {
+    withCredentials: true,
+  });
+};
