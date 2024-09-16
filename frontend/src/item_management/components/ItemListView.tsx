@@ -1,10 +1,3 @@
-import { useEffect, useState } from 'react';
-import {
-  getItemList,
-  removeItem,
-  ItemListResponseData,
-} from '../services/itemService';
-
 import {
   Table,
   TableBody,
@@ -16,46 +9,30 @@ import {
 } from '@/components/ui/table';
 
 import { Trash2 } from 'lucide-react';
+import { ItemListResponseData } from '../services/itemService';
 
-const ItemListView: React.FC = () => {
-  const [itemList, setItemList] = useState<ItemListResponseData[]>([]);
+interface ItemListViewProps {
+  itemList: ItemListResponseData[];
+  removeItemFromList: (itemId: number) => Promise<void>;
+}
 
-  useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const retrievedItemList = await getItemList();
-        setItemList(retrievedItemList);
-      } catch (error) {
-        console.error('Error fetching item list', error);
-      }
-    };
-
-    void fetchItem();
-  }, []);
-
-  const removeItemFromList = async (itemId: number) => {
-    try {
-      // Remove item from server
-      await removeItem(itemId);
-      // Reflect change in local state
-      const updatedItemList: ItemListResponseData[] = itemList.reduce<
-        ItemListResponseData[]
-      >((listOfItems, item) => {
-        if (item.id === itemId) {
-          return listOfItems;
-        } else {
-          return [...listOfItems, item];
-        }
-      }, []);
-      setItemList(updatedItemList);
-    } catch (error) {
-      console.error('Error removing item from list', error);
+const ItemListView: React.FC<ItemListViewProps> = ({
+  itemList,
+  removeItemFromList,
+}) => {
+  const sortedItemList = itemList.sort((a, b) => {
+    if (b.used_from > a.used_from) {
+      return 1;
+    } else {
+      return -1;
     }
-  };
+  });
 
   return (
     <Table>
-      <TableCaption className="text-xs">Your inventory items.</TableCaption>
+      <TableCaption className="text-xs">
+        {itemList.length === 0 ? 'No' : itemList.length} items.
+      </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead>Name</TableHead>
@@ -67,7 +44,7 @@ const ItemListView: React.FC = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {itemList.map((item) => {
+        {sortedItemList.map((item) => {
           const usedFromDate = new Date(item.used_from);
           return (
             <TableRow key={item.id}>

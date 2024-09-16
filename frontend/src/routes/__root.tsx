@@ -3,7 +3,7 @@ import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 
 export const Route = createRootRoute({
   component: () => (
-    <>
+    <div className="flex flex-col min-h-screen">
       <div className="p-4 flex gap-4">
         <Link to="/" className="[&.active]:font-bold">
           Home
@@ -18,6 +18,6 @@ export const Route = createRootRoute({
       <hr />
       <Outlet />
       <TanStackRouterDevtools />
-    </>
+    </div>
   ),
 });
