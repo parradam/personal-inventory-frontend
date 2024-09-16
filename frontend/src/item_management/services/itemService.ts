@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+export interface CreateItemPostData {
+  name: string;
+  used_from: Date;
+  used_to?: Date;
+  barcode: string | null;
+  owner: string | null;
+}
+
 export interface ItemListResponseData {
   user_id: number;
   name: string;
@@ -23,4 +31,17 @@ export const removeItem = async (itemId: number): Promise<void> => {
   await axios.delete(`${baseUrl}/items/${String(itemId)}`, {
     withCredentials: true,
   });
+};
+
+export const createItem = async (
+  values: CreateItemPostData,
+): Promise<ItemListResponseData> => {
+  const response = await axios.post<ItemListResponseData>(
+    `${baseUrl}/items/`,
+    values,
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
 };
