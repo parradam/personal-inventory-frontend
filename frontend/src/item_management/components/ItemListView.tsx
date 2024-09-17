@@ -13,14 +13,32 @@ import { ItemListResponseData } from '../services/itemService';
 
 interface ItemListViewProps {
   itemList: ItemListResponseData[];
+  searchFilter: string;
   removeItemFromList: (itemId: number) => Promise<void>;
 }
 
 const ItemListView: React.FC<ItemListViewProps> = ({
   itemList,
+  searchFilter,
   removeItemFromList,
 }) => {
-  const sortedItemList = itemList.sort((a, b) => {
+  const copyOfItemList = itemList.map((item) => item);
+  const filteredItemList = copyOfItemList.filter((item) => {
+    const foundInName = item.name
+      .toLowerCase()
+      .includes(searchFilter.toLowerCase());
+    const foundInBarcode = item.barcode
+      ?.toLowerCase()
+      .includes(searchFilter.toLowerCase());
+    const foundInOwner = item.owner
+      ?.toLowerCase()
+      .includes(searchFilter.toLowerCase());
+    if (foundInName || foundInBarcode || foundInOwner) {
+      return item;
+    }
+  });
+
+  const sortedItemList = filteredItemList.sort((a, b) => {
     if (b.used_from > a.used_from) {
       return 1;
     } else {
@@ -31,7 +49,7 @@ const ItemListView: React.FC<ItemListViewProps> = ({
   return (
     <Table>
       <TableCaption className="text-xs">
-        {itemList.length === 0 ? 'No' : itemList.length} items.
+        {sortedItemList.length === 0 ? 'No' : sortedItemList.length} items.
       </TableCaption>
       <TableHeader>
         <TableRow>
