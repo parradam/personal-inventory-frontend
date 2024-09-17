@@ -1,7 +1,6 @@
-import { Button } from '@/components/ui/button';
-import ItemListView from '../components/ItemListView';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useState, useEffect } from 'react';
+
+import ItemListView from '../components/ItemListView';
 import CreateItemModal from '../components/CreateItemModal';
 import CreateItemForm from '../components/CreateItemForm';
 import {
@@ -10,8 +9,13 @@ import {
   ItemListResponseData,
 } from '../services/itemService';
 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
 const ItemListPage = () => {
   const [itemList, setItemList] = useState<ItemListResponseData[]>([]);
+  const [searchFilter, setSearchFilter] = useState<string>('');
   const [showCreateItemModal, setShowCreateItemModal] =
     useState<boolean>(false);
 
@@ -52,9 +56,17 @@ const ItemListPage = () => {
     <div>
       <div className="p-4">
         <Card>
-          <CardHeader>
+          <CardHeader className="gap-6">
             <CardTitle>Your inventory</CardTitle>
-            <div className="text-right">
+            <div className="flex justify-between">
+              <Input
+                className="max-w-60"
+                placeholder="Search..."
+                value={searchFilter}
+                onChange={(event) => {
+                  setSearchFilter(event.target.value);
+                }}
+              />
               <Button
                 onClick={() => {
                   setShowCreateItemModal(true);
@@ -67,6 +79,7 @@ const ItemListPage = () => {
           <CardContent>
             <ItemListView
               itemList={itemList}
+              searchFilter={searchFilter}
               removeItemFromList={removeItemFromList}
             />
           </CardContent>
