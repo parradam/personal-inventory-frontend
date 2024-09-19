@@ -20,6 +20,18 @@ export interface ItemListResponseData {
 
 const baseUrl = `${import.meta.env.VITE_BACKEND_URL}/api/item_management`;
 
+export const getItem = async (
+  itemId: number,
+): Promise<ItemListResponseData> => {
+  const response = await axios.get<ItemListResponseData>(
+    `${baseUrl}/items/${String(itemId)}`,
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};
+
 export const getItemList = async (): Promise<ItemListResponseData[]> => {
   const response = await axios.get<ItemListResponseData[]>(`${baseUrl}/items`, {
     withCredentials: true,
