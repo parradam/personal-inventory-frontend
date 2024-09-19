@@ -17,9 +17,9 @@ import { Input } from '@/components/ui/input';
 import { loginService } from '../services/loginService';
 import { AxiosError } from 'axios';
 
-type FormErrorResponse = Record<string, string[]> | object;
-
-type FieldNames = Record<string, boolean>;
+interface FormErrorResponse {
+  error?: string;
+}
 
 const formSchema = z.object({
   username: z.string().min(6, {
@@ -51,26 +51,10 @@ const LoginForm: React.FC = () => {
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorData: FormErrorResponse = axiosError.response?.data || {};
-      console.error(errorData);
 
-      const fieldNames: FieldNames = {
-        username: true,
-        password: true,
-      };
-
-      Object.entries(errorData).forEach(([errorFieldName, errorMessages]) => {
-        if (Array.isArray(errorMessages)) {
-          const errorName = fieldNames[errorFieldName]
-            ? errorFieldName
-            : 'root';
-          errorMessages.forEach((errorMessage: string) => {
-            form.setError(errorName as 'username' | 'password' | 'root', {
-              type: 'manual',
-              message: errorMessage,
-            });
-          });
-        }
-      });
+      if (errorData.error) {
+        form.setError('root', { type: 'manual', message: errorData.error });
+      }
     }
   };
 
