@@ -1,3 +1,7 @@
+import { Link } from '@tanstack/react-router';
+
+import { ItemListResponseData } from '../services/itemService';
+
 import {
   Table,
   TableBody,
@@ -7,9 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
+import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
-import { ItemListResponseData } from '../services/itemService';
 
 interface ItemListViewProps {
   itemList: ItemListResponseData[];
@@ -66,7 +69,11 @@ const ItemListView: React.FC<ItemListViewProps> = ({
           const usedFromDate = new Date(item.used_from);
           return (
             <TableRow key={item.id}>
-              <TableCell>{item.name}</TableCell>
+              <TableCell>
+                <Link to={String(item.id)} className="cursor-pointer">
+                  <Button variant="link">{item.name}</Button>
+                </Link>
+              </TableCell>
               <TableCell>{item.barcode}</TableCell>
               <TableCell>{item.owner}</TableCell>
               <TableCell>{usedFromDate.toLocaleDateString()}</TableCell>
