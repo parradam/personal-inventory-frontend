@@ -57,3 +57,16 @@ export const createItem = async (
   );
   return response.data;
 };
+
+export const updateItem = async (
+  values: ItemListResponseData,
+): Promise<ItemListResponseData> => {
+  const response = await axios.put<ItemListResponseData>(
+    `${baseUrl}/items/${String(values.id)}`,
+    values,
+    {
+      withCredentials: true,
+    },
+  );
+  return response.data;
+};

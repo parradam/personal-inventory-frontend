@@ -15,20 +15,22 @@ const ItemDetailPage = () => {
         const retrievedItem = await getItem(Number(itemId));
         setItem(retrievedItem);
       } catch (error) {
-        console.error('Error fetching item list', error);
+        console.error('Error fetching item', error);
       }
     };
 
     void fetchItem();
   }, [itemId]);
 
-  console.log(item);
-
   return (
-    <div>
-      <div className="p-4">
-        {item ? <ItemDetailView item={item} /> : <div>Item not found.</div>}
-      </div>
+    <div className="p-4">
+      {/* Type assertion as item would never be null after this check */}
+      <ItemDetailView
+        item={item}
+        setItem={
+          setItem as React.Dispatch<React.SetStateAction<ItemListResponseData>>
+        }
+      />
     </div>
   );
 };

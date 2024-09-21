@@ -23,18 +23,30 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { AxiosError } from 'axios';
-import { createItem, ItemListResponseData } from '../services/itemService';
+import { updateItem, ItemListResponseData } from '../services/itemService';
 
-interface CreateItemFormProps {
-  setItemList: React.Dispatch<React.SetStateAction<ItemListResponseData[]>>;
-  setShowCreateItemModal: React.Dispatch<React.SetStateAction<boolean>>;
+interface UpdateItemFormProps {
+  item: ItemListResponseData;
+  setItem: React.Dispatch<React.SetStateAction<ItemListResponseData>>;
 }
 
 type FormErrorResponse = Record<string, string[]> | object;
 
 type FieldNames = Record<string, boolean>;
 
+interface UpdateItemFormValues {
+  id: number;
+  user_id: number;
+  name: string;
+  barcode: string;
+  owner: string;
+  used_from: Date; // Use Date for form handling
+  used_to?: Date; // Use Date for form handling
+}
+
 const formSchema = z.object({
+  id: z.number().int(),
+  user_id: z.number().int(),
   name: z.string().min(3, {
     message: 'Name must be at least 3 characters.',
   }),
@@ -44,35 +56,36 @@ const formSchema = z.object({
   used_to: z.date().optional(),
 });
 
-const CreateItemForm: React.FC<CreateItemFormProps> = ({
-  setItemList,
-  setShowCreateItemModal,
-}) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
+  const form = useForm<UpdateItemFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      barcode: '',
-      owner: '',
-      used_from: new Date(),
-      used_to: undefined,
+      // Not rendered as inputs
+      id: item.id,
+      user_id: item.user_id,
+      // Rendered as inputs
+      name: item.name,
+      barcode: item.barcode ?? '',
+      owner: item.owner ?? '',
+      used_from: new Date(item.used_from),
+      used_to: item.used_to ? new Date(item.used_to) : undefined,
     },
   });
 
-  const onSubmit: SubmitHandler<{
-    name: string;
-    barcode: string;
-    owner: string;
-    used_from: Date;
-    used_to?: Date;
-  }> = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit: SubmitHandler<UpdateItemFormValues> = async (
+    values: z.infer<typeof formSchema>,
+  ) => {
     try {
+      console.log(values);
       // Remove item from server
-      const createdItem = await createItem(values);
+      const updatedItem = await updateItem({
+        ...values,
+        used_from: values.used_from.toISOString(), // Convert Date to string for API
+        used_to: values.used_to ? values.used_to.toISOString() : null,
+      });
       // Reflect change in local state
-      setItemList((prev) => [...prev, createdItem]);
-      form.reset();
-      setShowCreateItemModal(false);
+      // Don't reset form as this would revert to old values
+      setItem(updatedItem);
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorData: FormErrorResponse = axiosError.response?.data || {};
@@ -269,7 +282,6 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
               className="flex-1"
               onClick={(event) => {
                 event.preventDefault();
-                setShowCreateItemModal(false);
               }}
             >
               Cancel
@@ -281,4 +293,4 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
   );
 };
 
-export default CreateItemForm;
+export default UpdateItemForm;
