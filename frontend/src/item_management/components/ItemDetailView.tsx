@@ -1,33 +1,28 @@
 import { ItemListResponseData } from '../services/itemService';
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import UpdateItemForm from './UpdateItemForm';
 
 interface ItemDetailViewProps {
-  item: ItemListResponseData;
+  item: ItemListResponseData | null;
+  setItem: React.Dispatch<React.SetStateAction<ItemListResponseData>>;
 }
 
-const ItemDetailView: React.FC<ItemDetailViewProps> = ({ item }) => {
-  const usedFromDate = new Date(item.used_from).toLocaleDateString();
-  const usedToDate = item.used_to
-    ? new Date(item.used_to).toLocaleDateString()
-    : 'present';
+const ItemDetailView: React.FC<ItemDetailViewProps> = ({ item, setItem }) => {
   return (
     <Card>
       <CardHeader>
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-          {item.name}
-        </h1>
+        <CardTitle>{item?.name ? item.name : 'Item not found'}</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-          Item details
-        </h2>
-        <p>Barcode: {item.barcode ? item.barcode : 'none'}</p>
-        <p>Owner: {item.owner}</p>
-        <p>
-          Used: {usedFromDate} - {usedToDate}
-        </p>
-      </CardContent>
+      {item ? (
+        <CardContent>
+          <div className="max-w-screen-sm">
+            <UpdateItemForm item={item} setItem={setItem} />
+          </div>
+        </CardContent>
+      ) : (
+        <CardContent>The item you requested doesn&apos;t exist.</CardContent>
+      )}
     </Card>
   );
 };
