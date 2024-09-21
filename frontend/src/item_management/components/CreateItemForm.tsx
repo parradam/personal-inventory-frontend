@@ -67,7 +67,6 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
     used_to?: Date;
   }> = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log(values);
       // Remove item from server
       const createdItem = await createItem(values);
       // Reflect change in local state
@@ -77,7 +76,6 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorData: FormErrorResponse = axiosError.response?.data || {};
-      console.error(errorData);
 
       const fieldNames: FieldNames = {
         name: true,
