@@ -34,15 +34,40 @@ type FormErrorResponse = Record<string, string[]> | object;
 
 type FieldNames = Record<string, boolean>;
 
-const formSchema = z.object({
-  name: z.string().min(3, {
-    message: 'Name must be at least 3 characters.',
-  }),
-  barcode: z.string(),
-  owner: z.string(),
-  used_from: z.date({ message: 'A date must be chosen.' }),
-  used_to: z.date().optional(),
-});
+const formSchema = z
+  .object({
+    name: z
+      .string()
+      .min(3, {
+        message: 'Name must be at least 3 characters.',
+      })
+      .max(50, {
+        message: 'Name must be less than 50 characters.',
+      }),
+    barcode: z.string().max(50, {
+      message: 'Barcode must be less than 50 characters.',
+    }),
+    owner: z.string().max(50, {
+      message: 'Owner must be less than 50 characters.',
+    }),
+    used_from: z.date({ message: 'A date must be chosen.' }),
+    used_to: z.date().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.used_from && data.used_to) {
+        return data.used_to >= data.used_from;
+      }
+      return true;
+    },
+    { message: 'Used to must be after used from.', path: ['used_to'] },
+  );
+
+const setDateToMidnight = (date: Date) => {
+  const newDate = new Date(date);
+  newDate.setHours(0, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0
+  return newDate;
+};
 
 const CreateItemForm: React.FC<CreateItemFormProps> = ({
   setItemList,
@@ -54,7 +79,7 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
       name: '',
       barcode: '',
       owner: '',
-      used_from: new Date(),
+      used_from: setDateToMidnight(new Date()),
       used_to: undefined,
     },
   });
@@ -191,7 +216,11 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
                     <Calendar
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        if (date) {
+                          field.onChange(setDateToMidnight(date));
+                        }
+                      }}
                       disabled={(date) =>
                         date > new Date() || date < new Date('1900-01-01')
                       }
@@ -235,7 +264,11 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
                     <Calendar
                       mode="single"
                       selected={field.value ? field.value : undefined}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        if (date) {
+                          field.onChange(setDateToMidnight(date));
+                        }
+                      }}
                       disabled={(date) =>
                         date > new Date() || date < new Date('1900-01-01')
                       }
