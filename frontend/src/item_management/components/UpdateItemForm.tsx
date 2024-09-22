@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
+import { Link, useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -57,6 +58,8 @@ const formSchema = z.object({
 });
 
 const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
+  const navigate = useNavigate();
+
   const form = useForm<UpdateItemFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -86,6 +89,7 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
       // Reflect change in local state
       // Don't reset form as this would revert to old values
       setItem(updatedItem);
+      await navigate({ to: '/items' });
     } catch (error) {
       const axiosError = error as AxiosError;
       const errorData: FormErrorResponse = axiosError.response?.data || {};
@@ -275,17 +279,14 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
           <FormMessage>{form.formState.errors.root?.message}</FormMessage>
           <div className="flex gap-4">
             <Button type="submit" className="flex-1">
-              Create
+              Save
             </Button>
-            <Button
-              variant="secondary"
-              className="flex-1"
-              onClick={(event) => {
-                event.preventDefault();
-              }}
+            <Link
+              to="/items"
+              className={`${buttonVariants({ variant: 'secondary' })}} flex-1`}
             >
-              Cancel
-            </Button>
+              Discard
+            </Link>
           </div>
         </form>
       </Form>
