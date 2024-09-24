@@ -19,6 +19,7 @@ import { Route as ItemsItemIdImport } from './routes/items/$itemId'
 
 const LoginLazyImport = createFileRoute('/login')()
 const IndexLazyImport = createFileRoute('/')()
+const RegisterIndexLazyImport = createFileRoute('/register/')()
 const ItemsIndexLazyImport = createFileRoute('/items/')()
 
 // Create/Update Routes
@@ -32,6 +33,13 @@ const IndexLazyRoute = IndexLazyImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const RegisterIndexLazyRoute = RegisterIndexLazyImport.update({
+  path: '/register/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/register/index.lazy').then((d) => d.Route),
+)
 
 const ItemsIndexLazyRoute = ItemsIndexLazyImport.update({
   path: '/items/',
@@ -75,6 +83,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ItemsIndexLazyImport
       parentRoute: typeof rootRoute
     }
+    '/register/': {
+      id: '/register/'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterIndexLazyImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -85,6 +100,7 @@ export const routeTree = rootRoute.addChildren({
   LoginLazyRoute,
   ItemsItemIdRoute,
   ItemsIndexLazyRoute,
+  RegisterIndexLazyRoute,
 })
 
 /* prettier-ignore-end */
@@ -98,7 +114,8 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/login",
         "/items/$itemId",
-        "/items/"
+        "/items/",
+        "/register/"
       ]
     },
     "/": {
@@ -112,6 +129,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/items/": {
       "filePath": "items/index.lazy.tsx"
+    },
+    "/register/": {
+      "filePath": "register/index.lazy.tsx"
     }
   }
 }
