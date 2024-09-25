@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
+import { useState } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -83,6 +84,7 @@ const setDateToMidnight = (date: Date) => {
 };
 
 const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
+  const [formDisabled, setFormDisabled] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const form = useForm<UpdateItemFormValues>({
@@ -152,7 +154,16 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
   };
 
   return (
-    <div>
+    <div className="space-y-4">
+      {formDisabled && (
+        <Button
+          onClick={() => {
+            setFormDisabled(false);
+          }}
+        >
+          Edit item
+        </Button>
+      )}
       <Form {...form}>
         {
           // Suppress TS error due to the way react-hook-form handles async code itself
@@ -162,6 +173,7 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
           <FormField
             control={form.control}
             name="name"
+            disabled={formDisabled}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name of item (required)</FormLabel>
@@ -176,6 +188,7 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
           <FormField
             control={form.control}
             name="barcode"
+            disabled={formDisabled}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Barcode</FormLabel>
@@ -192,6 +205,7 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
           <FormField
             control={form.control}
             name="owner"
+            disabled={formDisabled}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Owner</FormLabel>
@@ -228,22 +242,24 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => {
-                        if (date) {
-                          field.onChange(setDateToMidnight(date));
+                  {!formDisabled && (
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          if (date) {
+                            field.onChange(setDateToMidnight(date));
+                          }
+                        }}
+                        disabled={(date) =>
+                          date > new Date(new Date().setHours(0, 0, 0, 0)) ||
+                          date < new Date('1900-01-01')
                         }
-                      }}
-                      disabled={(date) =>
-                        date > new Date(new Date().setHours(0, 0, 0, 0)) ||
-                        date < new Date('1900-01-01')
-                      }
-                      initialFocus
-                    />
-                  </PopoverContent>
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  )}
                 </Popover>
                 <FormDescription>
                   When you first started using the item.
@@ -255,6 +271,7 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
           <FormField
             control={form.control}
             name="used_to"
+            disabled={formDisabled}
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Used to</FormLabel>
@@ -277,31 +294,33 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value ? field.value : undefined}
-                      onSelect={(date) => {
-                        if (date) {
-                          field.onChange(setDateToMidnight(date));
+                  {!formDisabled && (
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value ? field.value : undefined}
+                        onSelect={(date) => {
+                          if (date) {
+                            field.onChange(setDateToMidnight(date));
+                          }
+                        }}
+                        disabled={(date) =>
+                          date > new Date(new Date().setHours(0, 0, 0, 0)) ||
+                          date < new Date('1900-01-01')
                         }
-                      }}
-                      disabled={(date) =>
-                        date > new Date(new Date().setHours(0, 0, 0, 0)) ||
-                        date < new Date('1900-01-01')
-                      }
-                      initialFocus
-                    />
-                    <Button
-                      className="ml-4 mb-4"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        field.onChange(undefined);
-                      }}
-                    >
-                      Clear date
-                    </Button>
-                  </PopoverContent>
+                        initialFocus
+                      />
+                      <Button
+                        className="ml-4 mb-4"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          field.onChange(undefined);
+                        }}
+                      >
+                        Clear date
+                      </Button>
+                    </PopoverContent>
+                  )}
                 </Popover>
                 <FormDescription>
                   If applicable, when you stopped using it.
@@ -311,17 +330,19 @@ const UpdateItemForm: React.FC<UpdateItemFormProps> = ({ item, setItem }) => {
             )}
           />
           <FormMessage>{form.formState.errors.root?.message}</FormMessage>
-          <div className="flex gap-4">
-            <Button type="submit" className="flex-1">
-              Save
-            </Button>
-            <Link
-              to="/items"
-              className={`${buttonVariants({ variant: 'secondary' })}} flex-1`}
-            >
-              Discard
-            </Link>
-          </div>
+          {!formDisabled && (
+            <div className="flex gap-4">
+              <Button type="submit" className="flex-1">
+                Save
+              </Button>
+              <Link
+                to="/items"
+                className={`${buttonVariants({ variant: 'secondary' })}} flex-1`}
+              >
+                Discard
+              </Link>
+            </div>
+          )}
         </form>
       </Form>
     </div>
