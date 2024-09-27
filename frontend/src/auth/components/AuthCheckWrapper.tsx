@@ -1,5 +1,5 @@
-import useAuthCheck from '@/shared/hooks/useAuthCheck';
 import React from 'react';
+import useAuthCheck from '@/shared/hooks/useAuthCheck';
 
 interface AuthCheckWrapperProps {
   children: React.ReactNode;
@@ -8,9 +8,7 @@ interface AuthCheckWrapperProps {
 const AuthCheckWrapper: React.FC<AuthCheckWrapperProps> = ({ children }) => {
   const { data } = useAuthCheck();
 
-  if (!data) {
-    return <div className="p-4">Loading...</div>;
-  }
+  if (!data) return null;
 
   return children;
 };
