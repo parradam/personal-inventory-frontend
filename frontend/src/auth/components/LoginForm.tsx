@@ -1,7 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { AxiosError } from 'axios';
 import { useNavigate } from '@tanstack/react-router';
+
+import { useAuth } from '../hooks/useAuth';
+import { loginService } from '../services/loginService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -14,8 +18,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { loginService } from '../services/loginService';
-import { AxiosError } from 'axios';
 
 interface FormErrorResponse {
   error?: string;
@@ -32,6 +34,7 @@ const formSchema = z.object({
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,6 +50,7 @@ const LoginForm: React.FC = () => {
   }> = async (values: z.infer<typeof formSchema>) => {
     try {
       await loginService(values);
+      setIsAuthenticated(true);
       await navigate({ to: '/items' });
     } catch (error) {
       const axiosError = error as AxiosError;
