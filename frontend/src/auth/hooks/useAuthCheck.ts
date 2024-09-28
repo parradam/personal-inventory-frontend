@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import axios, { AxiosError } from 'axios';
 
-interface AuthCheckParams {
-  authenticate: boolean;
+interface AuthCheckApiParams {
+  authenticated: boolean;
 }
 
 const useAuthCheck = () => {
-  const [data, setData] = useState<AuthCheckParams | null>(null);
+  const [isAuthCheckSuccessful, setIsAuthCheckSuccessful] = useState<
+    boolean | null
+  >(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,15 +32,18 @@ const useAuthCheck = () => {
     // Fetch the authentication status from the server
     const fetchData = async () => {
       try {
-        const response = await apiClient.get<AuthCheckParams>(
+        const response = await apiClient.get<AuthCheckApiParams>(
           '/auth_token/check',
           {
             withCredentials: true,
           },
         );
-        setData(response.data);
+        if (response.data.authenticated) {
+          setIsAuthCheckSuccessful(true);
+        }
       } catch (error) {
         console.error('Failed to fetch data', error);
+        setIsAuthCheckSuccessful(false);
       }
     };
 
@@ -49,7 +54,7 @@ const useAuthCheck = () => {
     };
   }, [navigate]);
 
-  return { data };
+  return { isAuthCheckSuccessful };
 };
 
 export default useAuthCheck;

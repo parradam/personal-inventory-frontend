@@ -1,11 +1,11 @@
-import AuthCheckWrapper from '@/auth/components/AuthCheckWrapper';
+import AuthWrapper from '@/auth/components/AuthWrapper';
 import ItemListPage from '@/item_management/pages/ItemListPage';
 import { createLazyFileRoute } from '@tanstack/react-router';
 
 export const Route = createLazyFileRoute('/items/')({
   component: () => (
-    <AuthCheckWrapper>
+    <AuthWrapper>
       <ItemListPage />
-    </AuthCheckWrapper>
+    </AuthWrapper>
   ),
 });
