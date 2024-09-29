@@ -10,8 +10,8 @@ const LogoutButton = () => {
   const { setIsAuthenticated } = useAuth();
 
   const logout = async () => {
-    await logoutService();
     setIsAuthenticated(false);
+    await logoutService();
     void navigate({ to: '/login' });
   };
 
