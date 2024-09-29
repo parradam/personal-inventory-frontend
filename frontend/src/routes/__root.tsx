@@ -12,9 +12,6 @@ export const Route = createRootRoute({
         <div className="flex flex-col min-h-screen">
           <div className="p-4 flex justify-between items-center">
             <div className="flex gap-4">
-              <Link to="/" className="[&.active]:font-bold">
-                Home
-              </Link>
               <NotAuthWrapper>
                 <Link to="/register" className="[&.active]:font-bold">
                   Register
