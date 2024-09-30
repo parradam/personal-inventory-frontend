@@ -69,13 +69,22 @@ const ItemListView: React.FC<ItemListViewProps> = ({
           const usedFromDate = new Date(item.used_from);
           return (
             <TableRow key={item.id}>
-              <TableCell>
+              <TableCell className="max-w-[1/5]">
                 <Link to={String(item.id)} className="cursor-pointer">
-                  <Button variant="link">{item.name}</Button>
+                  <Button
+                    variant="link"
+                    className="whitespace-normal break-all max-w-full h-fit"
+                  >
+                    {item.name}
+                  </Button>
                 </Link>
               </TableCell>
-              <TableCell>{item.barcode}</TableCell>
-              <TableCell>{item.owner}</TableCell>
+              <TableCell className="max-w-[1/5] text-pretty">
+                {item.barcode}
+              </TableCell>
+              <TableCell className="max-w-[1/5] text-pretty">
+                {item.owner}
+              </TableCell>
               <TableCell>{usedFromDate.toLocaleDateString()}</TableCell>
               <TableCell>{item.used_to && 'Obsolete'}</TableCell>
               <TableCell>
