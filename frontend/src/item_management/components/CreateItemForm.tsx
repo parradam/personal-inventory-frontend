@@ -30,7 +30,9 @@ interface CreateItemFormProps {
   setShowCreateItemModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-type FormErrorResponse = Record<string, string[]> | object;
+interface FormErrorResponse {
+  errors?: Record<string, string[]>;
+}
 
 type FieldNames = Record<string, boolean>;
 
@@ -99,39 +101,41 @@ const CreateItemForm: React.FC<CreateItemFormProps> = ({
       form.reset();
       setShowCreateItemModal(false);
     } catch (error) {
-      const axiosError = error as AxiosError;
-      const errorData: FormErrorResponse = axiosError.response?.data || {};
+      if (error instanceof AxiosError) {
+        const errorData: FormErrorResponse =
+          (error.response?.data as FormErrorResponse)?.errors ?? {};
 
-      const fieldNames: FieldNames = {
-        name: true,
-        barcode: true,
-        owner: true,
-        used_from: true,
-        used_to: true,
-      };
+        const fieldNames: FieldNames = {
+          name: true,
+          barcode: true,
+          owner: true,
+          used_from: true,
+          used_to: true,
+        };
 
-      Object.entries(errorData).forEach(([errorFieldName, errorMessages]) => {
-        if (Array.isArray(errorMessages)) {
-          const errorName = fieldNames[errorFieldName]
-            ? errorFieldName
-            : 'root';
-          errorMessages.forEach((errorMessage: string) => {
-            form.setError(
-              errorName as
-                | 'name'
-                | 'barcode'
-                | 'owner'
-                | 'used_from'
-                | 'used_to'
-                | 'root',
-              {
-                type: 'manual',
-                message: errorMessage,
-              },
-            );
-          });
-        }
-      });
+        Object.entries(errorData).forEach(([errorFieldName, errorMessages]) => {
+          if (Array.isArray(errorMessages)) {
+            const errorName = fieldNames[errorFieldName]
+              ? errorFieldName
+              : 'root';
+            errorMessages.forEach((errorMessage: string) => {
+              form.setError(
+                errorName as
+                  | 'name'
+                  | 'barcode'
+                  | 'owner'
+                  | 'used_from'
+                  | 'used_to'
+                  | 'root',
+                {
+                  type: 'manual',
+                  message: errorMessage,
+                },
+              );
+            });
+          }
+        });
+      }
     }
   };
 
