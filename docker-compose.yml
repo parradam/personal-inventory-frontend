@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=http://web:8000 # Reference the backend service by its name in the same network
+    networks:
+      - personal-inventory-app
+
+networks:
+  personal-inventory-app:
+    external: false
