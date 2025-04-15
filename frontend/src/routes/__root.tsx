@@ -3,7 +3,8 @@ import { AuthProvider } from '@/auth/components/AuthContext';
 import LogoutButton from '@/auth/components/LogoutButton';
 import NotAuthWrapper from '@/auth/components/NotAuthWrapper';
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+// import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import React from 'react';
 
 export const Route = createRootRoute({
   component: () => (
@@ -34,7 +35,17 @@ export const Route = createRootRoute({
           <Outlet />
         </div>
       </AuthProvider>
-      <TanStackRouterDevtools />
+      {import.meta.env.DEV && (
+        <React.Suspense>
+          <TanStackRouterDevtools />
+        </React.Suspense>
+      )}
     </>
   ),
 });
+
+const TanStackRouterDevtools = React.lazy(() =>
+  import('@tanstack/router-devtools').then((res) => ({
+    default: res.TanStackRouterDevtools,
+  })),
+);
