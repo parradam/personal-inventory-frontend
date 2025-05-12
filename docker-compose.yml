@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  frontend:
+  inventory-frontend:
     build:
       context: .
       dockerfile: Dockerfile
